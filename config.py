@@ -6,7 +6,7 @@ load_dotenv()
 
 class Config:
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///library.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('exam.c1ok6yy085d2.us-east-2.rds.amazonaws.com')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Application configuration

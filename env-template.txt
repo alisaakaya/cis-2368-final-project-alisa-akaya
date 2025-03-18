@@ -1,0 +1,10 @@
+# Database configuration
+# Format: postgresql://username:password@host:port/database
+DATABASE_URL=exam.c1ok6yy085d2.us-east-2.rds.amazonaws.comlibrary_db
+
+# Application configuration
+SECRET_KEY=password
+
+# Flask configuration
+FLASK_APP=app.py
+FLASK_ENV=development
