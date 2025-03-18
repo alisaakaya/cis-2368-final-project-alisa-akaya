@@ -3,7 +3,7 @@
 DATABASE_URL=postgresql://postgres:password@localhost:5432/library_db
 
 # Application configuration
-SECRET_KEY=your-secret-key-for-production
+SECRET_KEY=password
 
 # Flask configuration
 FLASK_APP=app.py
