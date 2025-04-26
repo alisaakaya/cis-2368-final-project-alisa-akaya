@@ -1,0 +1,131 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <h2>Customers Management</h2>
+  
+  <% if (typeof error !== 'undefined') { %>
+    <div class="alert alert-error">
+      <%= error %>
+    </div>
+  <% } %>
+  
+  <!-- Add New Customer Form -->
+  <div class="form-container">
+    <h3>Add New Customer</h3>
+    <form action="/customers" method="POST">
+      <div class="form-group">
+        <label for="firstname">First Name:</label>
+        <input type="text" id="firstname" name="firstname" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="lastname">Last Name:</label>
+        <input type="text" id="lastname" name="lastname" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <small>The password will be securely hashed before storage.</small>
+      </div>
+      
+      <button type="submit" class="btn">Add Customer</button>
+    </form>
+  </div>
+  
+  <!-- Customers List -->
+  <div class="table-container">
+    <h3>All Customers</h3>
+    <% if (customers && customers.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% customers.forEach(customer => { %>
+            <tr>
+              <td><%= customer.firstname %></td>
+              <td><%= customer.lastname %></td>
+              <td><%= customer.email %></td>
+              <td class="actions">
+                <button class="btn-edit" onclick="showEditCustomerForm('<%= customer.id %>', '<%= customer.firstname %>', '<%= customer.lastname %>', '<%= customer.email %>')">Edit</button>
+                <form action="/customers/<%= customer.id %>/delete" method="POST" class="inline-form">
+                  <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this customer?')">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No customers found.</p>
+    <% } %>
+  </div>
+  
+  <!-- Edit Customer Modal -->
+  <div id="editCustomerModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditCustomerModal()">&times;</span>
+      <h3>Edit Customer</h3>
+      <form id="editCustomerForm" action="" method="POST">
+        <div class="form-group">
+          <label for="editFirstname">First Name:</label>
+          <input type="text" id="editFirstname" name="firstname" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editLastname">Last Name:</label>
+          <input type="text" id="editLastname" name="lastname" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editEmail">Email:</label>
+          <input type="email" id="editEmail" name="email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editPassword">Password:</label>
+          <input type="password" id="editPassword" name="password" placeholder="Leave blank to keep current password">
+          <small>Only fill this if you want to change the password.</small>
+        </div>
+        
+        <button type="submit" class="btn">Update Customer</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showEditCustomerForm(id, firstname, lastname, email) {
+    document.getElementById('editCustomerForm').action = `/customers/${id}/update`;
+    document.getElementById('editFirstname').value = firstname;
+    document.getElementById('editLastname').value = lastname;
+    document.getElementById('editEmail').value = email;
+    document.getElementById('editPassword').value = '';
+    document.getElementById('editCustomerModal').style.display = 'block';
+  }
+  
+  function closeEditCustomerModal() {
+    document.getElementById('editCustomerModal').style.display = 'none';
+  }
+  
+  // Close modal when clicking outside of it
+  window.onclick = function(event) {
+    const modal = document.getElementById('editCustomerModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

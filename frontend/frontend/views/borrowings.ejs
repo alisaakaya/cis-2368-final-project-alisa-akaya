@@ -1,0 +1,148 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <h2>Borrowings Management</h2>
+  
+  <% if (typeof error !== 'undefined') { %>
+    <div class="alert alert-error">
+      <%= error %>
+    </div>
+  <% } %>
+  
+  <!-- Create New Borrowing Form -->
+  <div class="form-container">
+    <h3>Create New Borrowing</h3>
+    <form action="/borrowings" method="POST">
+      <div class="form-group">
+        <label for="bookid">Select Book:</label>
+        <select id="bookid" name="bookid" required>
+          <option value="">-- Select a book --</option>
+          <% if (availableBooks && availableBooks.length > 0) { %>
+            <% availableBooks.forEach(book => { %>
+              <option value="<%= book.id %>"><%= book.title %> by <%= book.author %></option>
+            <% }); %>
+          <% } else { %>
+            <option disabled>No available books</option>
+          <% } %>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="customerid">Select Customer:</label>
+        <select id="customerid" name="customerid" required>
+          <option value="">-- Select a customer --</option>
+          <% if (eligibleCustomers && eligibleCustomers.length > 0) { %>
+            <% eligibleCustomers.forEach(customer => { %>
+              <option value="<%= customer.id %>"><%= customer.firstname %> <%= customer.lastname %></option>
+            <% }); %>
+          <% } else { %>
+            <option disabled>No eligible customers</option>
+          <% } %>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="borrowdate">Borrow Date:</label>
+        <input type="date" id="borrowdate" name="borrowdate" required value="<%= new Date().toISOString().split('T')[0] %>">
+      </div>
+      
+      <button type="submit" class="btn" <%= (!availableBooks || !availableBooks.length || !eligibleCustomers || !eligibleCustomers.length) ? 'disabled' : '' %>>Create Borrowing</button>
+    </form>
+  </div>
+  
+  <!-- Current Borrowings List -->
+  <div class="table-container">
+    <h3>Current Borrowings</h3>
+    <% if (borrowings && borrowings.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Book ID</th>
+            <th>Customer ID</th>
+            <th>Borrow Date</th>
+            <th>Return Date</th>
+            <th>Late Fee</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% 
+            // Filter to show only active borrowings first, then returned ones
+            const activeBorrowings = borrowings.filter(b => !b.returndate);
+            const returnedBorrowings = borrowings.filter(b => b.returndate);
+            const orderedBorrowings = [...activeBorrowings, ...returnedBorrowings];
+            
+            orderedBorrowings.forEach(borrowing => { 
+          %>
+            <tr class="<%= borrowing.returndate ? 'returned' : 'active' %>">
+              <td><%= borrowing.bookid %></td>
+              <td><%= borrowing.customerid %></td>
+              <td><%= new Date(borrowing.borrowdate).toLocaleDateString() %></td>
+              <td>
+                <% if (borrowing.returndate) { %>
+                  <%= new Date(borrowing.returndate).toLocaleDateString() %>
+                <% } else { %>
+                  Not returned
+                <% } %>
+              </td>
+              <td>
+                <% if (borrowing.late_fee) { %>
+                  $<%= borrowing.late_fee.toFixed(2) %>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+              <td class="actions">
+                <% if (!borrowing.returndate) { %>
+                  <button class="btn-edit" onclick="showReturnBookForm('<%= borrowing.id %>')">Return Book</button>
+                <% } else { %>
+                  <span class="status-returned">Returned</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No borrowing records found.</p>
+    <% } %>
+  </div>
+  
+  <!-- Return Book Modal -->
+  <div id="returnBookModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReturnBookModal()">&times;</span>
+      <h3>Return Book</h3>
+      <form id="returnBookForm" action="" method="POST">
+        <div class="form-group">
+          <label for="returndate">Return Date:</label>
+          <input type="date" id="returndate" name="returndate" required value="<%= new Date().toISOString().split('T')[0] %>">
+          <small>If returned after 10 days, a late fee of $1 per day will be applied.</small>
+        </div>
+        
+        <button type="submit" class="btn">Return Book</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showReturnBookForm(id) {
+    document.getElementById('returnBookForm').action = `/borrowings/${id}/return`;
+    document.getElementById('returnBookModal').style.display = 'block';
+  }
+  
+  function closeReturnBookModal() {
+    document.getElementById('returnBookModal').style.display = 'none';
+  }
+  
+  // Close modal when clicking outside of it
+  window.onclick = function(event) {
+    const modal = document.getElementById('returnBookModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>
