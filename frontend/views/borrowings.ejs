@@ -86,11 +86,13 @@
                 <% } %>
               </td>
               <td>
-                <% if (borrowing.late_fee) { %>
-                  $<%= borrowing.late_fee.toFixed(2) %>
-                <% } else { %>
-                  -
-                <% } %>
+                <% if (typeof borrowing.late_fee === 'number') { %>
+ 		 $<%= borrowing.late_fee.toFixed(2) %>
+			<% } else if (!isNaN(parseFloat(borrowing.late_fee))) { %>
+ 			 $<%= parseFloat(borrowing.late_fee).toFixed(2) %>
+		<% } else { %>
+		  -
+		<% } %>
               </td>
               <td class="actions">
                 <% if (!borrowing.returndate) { %>
